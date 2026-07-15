@@ -787,7 +787,7 @@
         </div>
         <div id="su-error" style="display:none; color:#B33A3A; font-size:13px; margin:-6px 0 12px; line-height:1.45;"></div>
         <div style="font-size:12px; color:var(--muted); margin:-4px 0 14px; line-height:1.5;">
-          Password must be at least 8 characters, include 1 capital letter, 2–4 digits, and 1 special character from <b>#&nbsp;&amp;&nbsp;@&nbsp;!&nbsp;₹&nbsp;?&nbsp;*</b>.
+          Password must be at least 8 characters, include 1 capital letter, 2–8 digits, and 1 special character from <b>#&nbsp;&amp;&nbsp;@&nbsp;!&nbsp;₹&nbsp;?&nbsp;*</b>.
         </div>
         <button class="btn btn-primary btn-block" onclick="doSignUp()">Create account
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -811,7 +811,7 @@
    Leave blank to run the site with no backend (orders won't be
    saved, and default UPI details below are used as-is). */
 const SITE_CONFIG = {
-  gasUrl: ''  // e.g. 'https://script.google.com/macros/s/AKfycb.../exec'
+  gasUrl: 'https://script.google.com/macros/s/AKfycby5mfYqpIu8ExSwhghBDc_951LdhEtEjnk-9C0W6QH69C65t9L4mC_4qgjxCP9ZpePp/exec'
 };
 
 /* Fallback UPI routing, used until the backend responds (or if no
