@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Amaravati Print Centre — Secure Self-Service Printing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --cream:#FBFAF6;
+    --ink:#0C2E22;
+    --green-900:#0E3B2C;
+    --green-800:#12472F;
+    --green-700:#146B4E;
+    --teal:#12B886;
+    --lime:#D8E86A;
+    --mint-50:#EFF6F0;
+    --mint-100:#E1EFE4;
+    --line:#DCEADF;
+    --muted:#5C6C63;
+    --muted-light:#8B978F;
+    --white:#FFFFFF;
+    --amber-a:#F0A93A;
+    --amber-b:#F4C93A;
+    --radius-pill:999px;
+    --radius-lg:22px;
+    --radius-md:16px;
+    --shadow-soft:0 1px 2px rgba(12,46,34,.04), 0 8px 24px -12px rgba(12,46,34,.10);
+    --shadow-card:0 1px 2px rgba(12,46,34,.03), 0 20px 40px -24px rgba(12,46,34,.14);
+    --grad-main:linear-gradient(120deg, #0B8F63 0%, #3EBE7E 45%, #CFE25E 100%);
+    --grad-cta:linear-gradient(135deg, #0E8F63 0%, #4FC17E 45%, #D7E75F 100%);
+    --grad-btn:linear-gradient(135deg, #0E3B2C 0%, #146B4E 100%);
+    --grad-btn-light:linear-gradient(135deg, #7FD1B0 0%, #BFE58F 100%);
+    --grad-rupee:linear-gradient(135deg, #F0A93A 0%, #F4D23A 100%);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--white);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  h1,h2,h3,.serif{font-family:'Lora',Georgia,serif;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  input{font-family:inherit;}
+  ::selection{background:var(--lime); color:var(--ink);}
+
+  .app-shell{max-width:520px; margin:0 auto; min-height:100vh; background:var(--white); position:relative; border-left:1px solid var(--line); border-right:1px solid var(--line);}
+  @media (min-width:521px){ body{background:var(--mint-50);} }
+
+  /* ===== HEADER ===== */
+  .site-header{
+    position:sticky; top:0; z-index:60;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px; background:rgba(255,255,255,.92); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px; cursor:pointer; background:none; border:none; padding:0;}
+  .brand-mark{
+    width:38px; height:38px; border-radius:50%; background:var(--grad-main);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    box-shadow:0 4px 10px -4px rgba(14,59,44,.5);
+  }
+  .brand-mark svg{width:18px; height:18px; stroke:#fff; fill:none; stroke-width:2;}
+  .brand-text{display:flex; flex-direction:column; line-height:1.05;}
+  .brand-text .name{font-family:'Lora',serif; font-weight:700; font-size:17px; color:var(--ink);}
+  .brand-text .tag{font-size:9.5px; letter-spacing:.16em; color:var(--muted); font-weight:600;}
+  .menu-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .menu-btn svg{width:18px; height:18px; stroke:var(--ink); fill:none; stroke-width:2; stroke-linecap:round;}
+
+  /* ===== MOBILE NAV DRAWER ===== */
+  .nav-drawer{
+    position:fixed; inset:0; z-index:100; display:none;
+  }
+  .nav-drawer.open{display:block;}
+  .nav-scrim{position:absolute; inset:0; background:rgba(12,46,34,.35);}
+  .nav-panel{
+    position:absolute; top:0; left:50%; transform:translateX(-50%); width:100%; max-width:520px;
+    background:#fff; border-bottom:1px solid var(--line); border-left:1px solid var(--line); border-right:1px solid var(--line);
+    padding:16px 20px 22px; animation:navdown .22s ease;
+  }
+  @keyframes navdown{from{transform:translateX(-50%) translateY(-14px); opacity:0;} to{transform:translateX(-50%) translateY(0); opacity:1;}}
+  .nav-panel-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .nav-links{display:flex; flex-direction:column;}
+  .nav-links a, .nav-links button{
+    all:unset; padding:13px 4px; font-size:17px; font-weight:500; color:var(--ink);
+    border-bottom:1px solid var(--mint-100); cursor:pointer;
+  }
+  .nav-links a.danger{color:#C0442E;}
+  .nav-links a:last-child{border-bottom:none;}
+
+  /* ===== BADGE / PILL ===== */
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:6px; background:var(--mint-50); color:var(--green-700);
+    border:1px solid var(--mint-100); padding:7px 14px; border-radius:var(--radius-pill);
+    font-size:11.5px; font-weight:700; letter-spacing:.10em; text-transform:uppercase;
+  }
+  .eyebrow svg{width:13px; height:13px;}
+
+  /* ===== HERO ===== */
+  .hero{
+    padding:34px 20px 30px;
+    background:radial-gradient(120% 90% at 50% -10%, #E4F4E9 0%, #FBFAF6 55%, #FDFBF3 100%);
+  }
+  .hero h1{font-size:40px; line-height:1.08; font-weight:700; margin:18px 0 0; color:var(--ink); letter-spacing:-0.01em;}
+  .hero p.lede{font-size:15.5px; line-height:1.6; color:var(--muted); max-width:44ch; margin:0 0 24px;}
+  .hero-ctas{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:26px;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:15px 24px; border-radius:var(--radius-pill); font-weight:700; font-size:15px;
+    border:none; white-space:nowrap; transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--grad-btn); color:#fff; box-shadow:0 10px 20px -10px rgba(14,59,44,.55);}
+  .btn-primary:disabled{background:var(--grad-btn-light); color:#fff; opacity:.85; cursor:not-allowed; box-shadow:none;}
+  .btn-secondary{background:#fff; color:var(--ink); border:1px solid var(--line);}
+  .btn-block{width:100%;}
+  .btn svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.4;}
+  .check-row{display:flex; gap:22px; flex-wrap:wrap; font-size:13.5px; color:var(--ink); font-weight:600;}
+  .check-row span{display:flex; align-items:center; gap:6px;}
+  .check-row svg{width:16px; height:16px; stroke:var(--teal); fill:none; stroke-width:2.4;}
+
+  /* ===== KIOSK CARD ===== */
+  .kiosk-card{
+    margin:28px 20px 0; background:#fff; border:1px solid var(--line); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card); padding:22px; position:relative; overflow:hidden;
+  }
+  .kiosk-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;}
+  .kiosk-id{display:flex; align-items:center; gap:10px; font-weight:700; font-family:'Lora',serif; font-size:17px;}
+  .kiosk-id .brand-mark{width:32px; height:32px;}
+  .kiosk-id .brand-mark svg{width:15px; height:15px;}
+  .status-ready{background:#E5F6EC; color:#0E8F5B; font-size:12px; font-weight:800; letter-spacing:.06em; padding:5px 12px; border-radius:var(--radius-pill);}
+  .kiosk-ring{
+    width:170px; height:170px; margin:6px auto 22px; border-radius:50%;
+    border:2px solid #AEE9E0; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 6px rgba(174,233,224,.25);
+  }
+  .kiosk-ring .inner{
+    width:130px; height:130px; border-radius:26px; background:var(--grad-main);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 14px 26px -12px rgba(14,59,44,.5);
+  }
+  .kiosk-ring .inner svg{width:56px; height:56px; stroke:#fff; fill:none; stroke-width:1.6;}
+  .kiosk-actions{display:flex; justify-content:space-around; text-align:center; margin-bottom:22px;}
+  .kiosk-actions .item{display:flex; flex-direction:column; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--ink);}
+  .kiosk-actions .icn{
+    width:44px; height:44px; border-radius:50%; background:var(--mint-50); display:flex; align-items:center; justify-content:center;
+  }
+  .kiosk-actions .icn svg{width:19px; height:19px; stroke:var(--green-700); fill:none; stroke-width:2;}
+  .last-print-row{
+    display:flex; align-items:center; justify-content:space-between; background:var(--mint-50);
+    border-radius:16px; padding:14px 16px; position:relative;
+  }
+  .rupee-badge{
+    position:absolute; left:-14px; top:50%; transform:translateY(-50%);
+    width:52px; height:52px; border-radius:16px; background:var(--grad-rupee);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 10px 18px -8px rgba(240,169,58,.7);
+  }
+  .rupee-badge svg{width:22px; height:22px; stroke:#fff; fill:none; stroke-width:2.4;}
+  .last-print-row .label{margin-left:44px; font-size:13.5px; color:var(--muted); font-weight:600;}
+  .last-print-row .val{font-weight:800; font-size:16px;}
+  .stats-grid{display:grid; grid-template-columns:1fr 1fr; gap:22px 0; margin-top:26px; text-align:center;}
+  .stats-grid .num{font-family:'Lora',serif; font-weight:700; font-size:25px; color:var(--green-800);}
+  .stats-grid .lbl{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-top:4px;}
+
+  /* ===== SECTION GENERIC ===== */
+  .section{padding:52px 20px 8px;}
+  .section-head{text-align:center; margin-bottom:30px;}
+  .section-head h2{font-size:28px; line-height:1.2; font-weight:700; margin:14px 0 12px; color:var(--ink);}
+  .section-head p{font-size:14.5px; color:var(--muted); line-height:1.6; max-width:38ch; margin:0 auto;}
+
+  .feature-card{
+    border:1px solid var(--line); border-radius:20px; padding:24px; margin-bottom:16px;
+    background:#fff; transition:box-shadow .2s ease, transform .2s ease;
+  }
+  .feature-card:hover{box-shadow:var(--shadow-card); transform:translateY(-2px);}
+  .feature-icn{
+    width:46px; height:46px; border-radius:50%; background:var(--grad-main);
+    display:flex; align-items:center; justify-content:center; margin-bottom:16px;
+    box-shadow:0 8px 16px -8px rgba(14,59,44,.5);
+  }
+  .feature-icn svg{width:20px; height:20px; stroke:#fff; fill:none; stroke-width:2;}
+  .feature-card h3{font-size:18px; font-weight:700; margin:0 0 8px;}
+  .feature-card p{font-size:14px; color:var(--muted); line-height:1.55; margin:0;}
+
+  .step-card{border:1px solid var(--line); border-radius:20px; padding:24px; margin-bottom:16px; background:#fff;}
+  .step-card .step-num{font-family:'Lora',serif; font-weight:700; font-size:34px; color:#BFE0CD; line-height:1;}
+  .step-card h3{font-size:17px; font-weight:700; margin:12px 0 8px;}
+  .step-card p{font-size:14px; color:var(--muted); line-height:1.55; margin:0;}
+
+  .price-heading-row{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:22px;}
+  .price-link{font-size:13.5px; font-weight:700; color:var(--green-700); display:inline-flex; align-items:center; gap:5px;}
+  .price-link svg{width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.4;}
+  .price-table{width:100%; border:1px solid var(--line); border-radius:20px; border-collapse:separate; border-spacing:0; overflow:hidden; margin-bottom:8px;}
+  .price-table th{
+    text-align:left; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+    font-weight:800; padding:16px 16px 12px; background:#fff;
+  }
+  .price-table td{padding:16px; font-size:15px; border-top:1px solid var(--mint-100);}
+  .price-table td.size, .price-table th:first-child{font-family:'Lora',serif; font-weight:700; font-size:17px;}
+  .price-table td.bestfor{color:var(--muted); font-size:13px;}
+  .price-table td.amt{font-weight:700;}
+
+  .cta-banner{
+    margin:44px 20px; border-radius:26px; padding:46px 26px; text-align:center;
+    background:var(--grad-cta); color:#fff; box-shadow:0 20px 40px -18px rgba(14,59,44,.55);
+  }
+  .cta-banner h2{font-size:27px; font-weight:700; margin:0 0 12px; color:#fff;}
+  .cta-banner p{font-size:14.5px; line-height:1.6; opacity:.96; max-width:32ch; margin:0 auto 22px;}
+  .cta-banner .btn-secondary{background:#fff; color:var(--green-800); border:none;}
+
+  /* ===== FOOTER ===== */
+  .site-footer{padding:44px 20px 30px; border-top:1px solid var(--line); margin-top:20px;}
+  .footer-brand{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+  .footer-desc{font-size:13.5px; color:var(--muted); line-height:1.6; margin:0 0 26px;}
+  .footer-col{margin-bottom:24px;}
+  .footer-col h4{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-light); font-weight:800; margin:0 0 12px;}
+  .footer-col a, .footer-col .trust-item, .footer-col .contact-item{
+    display:flex; align-items:center; gap:9px; font-size:14.5px; font-weight:500; color:var(--ink);
+    padding:7px 0;
+  }
+  .footer-col a{cursor:pointer;}
+  .footer-col svg{width:16px; height:16px; stroke:var(--green-700); fill:none; stroke-width:2;}
+  .footer-bottom{font-size:12px; color:var(--muted-light); text-align:center; padding-top:22px; border-top:1px solid var(--mint-100); line-height:1.7;}
+
+  /* ===== STEP INDICATOR (flow) ===== */
+  .flow-wrap{padding:22px 20px 40px;}
+  .stepper{display:flex; align-items:center; margin-bottom:30px;}
+  .stepper .dot{
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800; border:1.5px solid var(--line); color:var(--muted-light); background:#fff; flex-shrink:0;
+  }
+  .stepper .dot.active{background:var(--green-900); color:#fff; border-color:var(--green-900);}
+  .stepper .dot.done{background:#DFF3E6; color:#0E8F5B; border-color:#AEE0C1;}
+  .stepper .dot svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:3;}
+  .stepper .seg{flex:1; height:1px; background:var(--line); margin:0 4px;}
+  .stepper .seg.done{background:#AEE0C1;}
+
+  .flow-head{text-align:center; margin-bottom:26px;}
+  .flow-head h2{font-size:27px; font-weight:700; margin:0 0 10px;}
+  .flow-head p{font-size:14px; color:var(--muted); line-height:1.6; max-width:40ch; margin:0 auto;}
+
+  .upload-box{
+    border:1.5px dashed #B9DEC7; border-radius:20px; padding:38px 20px; text-align:center; background:var(--mint-50);
+    cursor:pointer; transition:border-color .2s ease, background .2s ease; margin-bottom:20px;
+  }
+  .upload-box.drag{border-color:var(--teal); background:#E6F7EE;}
+  .upload-icn{
+    width:64px; height:64px; border-radius:20px; background:var(--grad-main); margin:0 auto 18px;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 12px 22px -10px rgba(14,59,44,.5);
+  }
+  .upload-icn svg{width:26px; height:26px; stroke:#fff; fill:none; stroke-width:2.2;}
+  .upload-box h4{font-size:17px; font-weight:700; margin:0 0 8px;}
+  .upload-box .types{font-size:13px; color:var(--muted); margin-bottom:18px;}
+  .pin-pill{
+    display:inline-flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line);
+    padding:9px 16px; border-radius:var(--radius-pill); font-size:12.5px; font-weight:600; color:var(--ink);
+  }
+  .pin-pill svg{width:14px; height:14px; stroke:var(--green-700); fill:none; stroke-width:2;}
+  .pin-pill b{background:var(--mint-100); padding:2px 7px; border-radius:6px; font-weight:800;}
+  #file-input{display:none;}
+
+  .files-summary{display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; color:var(--ink); margin:6px 2px 12px;}
+  .files-summary span:last-child{color:var(--muted); font-weight:600;}
+  .file-row{
+    display:flex; align-items:center; gap:12px; border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:20px;
+  }
+  .file-row .ic{width:34px; height:34px; border-radius:9px; background:var(--mint-50); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .file-row .ic svg{width:16px; height:16px; stroke:var(--green-700); fill:none; stroke-width:2;}
+  .file-row .meta{flex:1; min-width:0;}
+  .file-row .meta .fn{font-weight:700; font-size:14.5px;}
+  .file-row .meta .fs{font-size:12px; color:var(--muted);}
+  .file-row .rm{width:26px; height:26px; border-radius:50%; border:none; background:transparent; display:flex; align-items:center; justify-content:center; color:var(--muted);}
+  .file-row .rm svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2.2;}
+
+  /* settings groups */
+  .opt-group{border:1px solid var(--line); border-radius:18px; padding:18px; margin-bottom:16px; background:#fff;}
+  .opt-group .opt-label{
+    display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:14px;
+  }
+  .opt-label svg{width:15px; height:15px; stroke:var(--green-700); fill:none; stroke-width:2;}
+  .opt-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .opt-pill{
+    padding:11px 16px; border-radius:var(--radius-pill); font-size:13.5px; font-weight:700; border:1.5px solid var(--line);
+    background:#fff; color:var(--ink); transition:.15s ease;
+  }
+  .opt-pill.sel{background:var(--green-900); color:#fff; border-color:var(--green-900);}
+  .opt-pill small{opacity:.8; font-weight:600;}
+  .copies-row{display:flex; align-items:center; justify-content:center; gap:26px;}
+  .copies-row button{
+    width:40px; height:40px; border-radius:50%; border:1.5px solid var(--line); background:#fff; font-size:19px; font-weight:700; color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .copies-row .n{font-family:'Lora',serif; font-size:24px; font-weight:700; min-width:26px; text-align:center;}
+
+  .estimate-card{border:1px solid var(--line); border-radius:20px; padding:22px; background:var(--mint-50); margin:8px 0 22px;}
+  .estimate-card h3{font-size:19px; font-weight:700; margin:0 0 16px;}
+  .est-line{display:flex; align-items:center; justify-content:space-between; font-size:14px; padding:8px 0; color:var(--ink);}
+  .est-line .l{color:var(--muted); font-weight:500;}
+  .est-line .v{font-weight:700;}
+  .est-divider{height:1px; background:var(--mint-100); margin:6px 0;}
+  .est-total-row{display:flex; align-items:center; justify-content:space-between; margin-top:14px;}
+  .est-total-row .tl{font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+  .est-total-row .tv{font-family:'Lora',serif; font-size:32px; font-weight:700; color:var(--green-900);}
+
+  .review-card{border:1px solid var(--line); border-radius:20px; padding:22px; margin-bottom:16px; background:#fff;}
+  .review-card .rc-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .review-card h3{font-size:19px; font-weight:700; margin:0;}
+  .edit-link{font-size:13px; font-weight:700; color:var(--green-700); display:flex; align-items:center; gap:5px;}
+  .edit-link svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2.2;}
+  .review-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 12px;}
+  .review-grid .ri .rk{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:4px;}
+  .review-grid .ri .rv{font-size:15px; font-weight:700;}
+  .bill-row{display:flex; align-items:center; justify-content:space-between; font-size:14.5px; padding:8px 0;}
+  .bill-total{display:flex; align-items:center; justify-content:space-between; padding-top:14px; margin-top:6px; border-top:1px solid var(--mint-100);}
+  .bill-total .bt-l{font-family:'Lora',serif; font-size:20px; font-weight:700;}
+  .bill-total .bt-v{font-family:'Lora',serif; font-size:26px; font-weight:700; color:var(--green-900);}
+  .back-link{display:block; text-align:center; margin-top:16px; font-size:13.5px; font-weight:700; color:var(--muted);}
+
+  /* payment */
+  .pay-amount{text-align:center; margin-bottom:6px;}
+  .pay-amount h2{font-size:34px; margin:0;}
+  .mobile-field{border:1px solid var(--line); border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:8px; margin-bottom:20px; background:#fff;}
+  .mobile-field .cc{font-weight:700; color:var(--muted); font-size:16px;}
+  .mobile-field input{border:none; outline:none; font-size:17px; font-weight:700; letter-spacing:.03em; width:100%; background:transparent; color:var(--ink);}
+  .mobile-field-label{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:800; margin:0 0 8px 2px;}
+  .keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;}
+  .keypad button{
+    height:56px; border-radius:16px; border:1px solid var(--line); background:#fff; font-size:19px; font-weight:700; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; transition:background .1s ease;
+  }
+  .keypad button:active{background:var(--mint-50);}
+  .keypad button svg{width:18px; height:18px; stroke:var(--ink); fill:none; stroke-width:2.2;}
+  .pay-apps-label{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:800; margin:0 0 10px 2px;}
+  .pay-app-row{
+    display:flex; align-items:center; gap:14px; border:1.5px solid var(--line); border-radius:16px; padding:14px 16px; margin-bottom:12px; background:#fff;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .pay-app-row.sel{border-color:var(--green-900); box-shadow:0 0 0 3px rgba(14,59,44,.08);}
+  .pay-app-row .aicn{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .pay-app-row .aicn svg{width:20px; height:20px; stroke:#fff; fill:none; stroke-width:2;}
+  .pay-app-row .ameta{flex:1;}
+  .pay-app-row .ameta .an{font-weight:700; font-size:15.5px;}
+  .pay-app-row .ameta .as{font-size:12.5px; color:var(--muted);}
+  .pay-app-row .arrow{width:18px; height:18px; stroke:var(--muted); fill:none; stroke-width:2.4;}
+  .secure-note{display:flex; align-items:center; justify-content:center; gap:7px; font-size:12.5px; color:var(--muted); font-weight:600; margin:18px 0 6px;}
+  .secure-note svg{width:14px; height:14px; stroke:var(--green-700); fill:none; stroke-width:2.2;}
+
+  .otp-chip{display:inline-flex; align-items:center; gap:7px; background:var(--mint-50); border:1px solid var(--mint-100); padding:6px 14px; border-radius:var(--radius-pill); font-size:12.5px; font-weight:700; margin-bottom:16px;}
+  .otp-chip .dotc{width:7px; height:7px; border-radius:50%; background:#4C2C9A;}
+  .otp-boxes{display:flex; gap:9px; justify-content:center; margin:22px 0 26px;}
+  .otp-boxes input{
+    width:44px; height:56px; text-align:center; font-size:22px; font-weight:800; border:1.5px solid var(--line); border-radius:14px;
+    outline:none; color:var(--ink); background:#fff;
+  }
+  .otp-boxes input:focus{border-color:var(--green-900);}
+  .resend-note{text-align:center; font-size:13px; color:var(--muted); margin-bottom:18px;}
+  .demo-note{text-align:center; font-size:12px; color:var(--muted-light); line-height:1.6; margin-top:12px;}
+  .app-redirect-note{text-align:center; font-size:12.5px; color:var(--green-700); background:var(--mint-50); border:1px solid var(--mint-100); padding:12px 14px; border-radius:14px; margin-bottom:18px; line-height:1.5;}
+
+  /* qr payment session */
+  .qr-timer-wrap{position:relative; width:64px; height:64px; margin:0 auto 18px;}
+  .qr-timer-ring{width:64px; height:64px; transform:rotate(-90deg);}
+  .qr-timer-ring .ring-bg{fill:none; stroke:var(--mint-100); stroke-width:5;}
+  .qr-timer-ring .ring-fg{fill:none; stroke:var(--green-900); stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset 1s linear;}
+  .qr-timer-text{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; color:var(--ink);}
+  .qr-photo-wrap{position:relative; width:230px; max-width:100%; margin:0 auto 4px; border-radius:20px; overflow:hidden; border:1.5px solid var(--line); background:#fff; box-shadow:0 12px 24px -16px rgba(14,59,44,.3);}
+  .qr-photo-img{display:block; width:100%; height:auto; object-fit:contain; transition:filter .25s ease;}
+  .qr-expired-overlay{
+    position:absolute; inset:0; background:rgba(20,20,20,.55); color:#fff; font-weight:800; font-size:15px;
+    display:none; align-items:center; justify-content:center; letter-spacing:.03em;
+  }
+
+  /* processing / success */
+  .confirm-bar{display:flex; align-items:center; gap:8px; background:#E5F6EC; color:#0E8F5B; font-weight:700; font-size:13.5px; padding:12px 20px; margin:0;}
+  .confirm-bar svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.6;}
+  .print-status{text-align:center; padding:48px 20px 10px;}
+  .print-status .picn{
+    width:96px; height:96px; border-radius:50%; background:var(--grad-main); margin:0 auto 26px;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 16px 30px -14px rgba(14,59,44,.55);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.06);}}
+  .print-status .picn svg{width:40px; height:40px; stroke:#fff; fill:none; stroke-width:1.6;}
+  .print-status h2{font-size:26px; margin:0 0 10px;}
+  .print-status p{font-size:14px; color:var(--muted); line-height:1.6; margin:0 0 30px;}
+
+  .qr-wrap{display:flex; justify-content:center; margin-bottom:8px;}
+  .qr-cap{text-align:center; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700; margin:10px 0 26px;}
+  .receipt-title{text-align:center; padding:34px 20px 6px;}
+  .receipt-title h2{font-size:28px; margin:0 0 8px;}
+  .receipt-title p{font-size:14px; color:var(--muted); margin:0;}
+  .receipt-fields{padding:0 20px;}
+  .rf-row{display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--mint-100); font-size:14.5px;}
+  .rf-row .rk{color:var(--muted); font-weight:600;}
+  .rf-row .rv{font-weight:700;}
+  .status-pill{background:#E5F6EC; color:#0E8F5B; font-size:12px; font-weight:800; padding:4px 12px; border-radius:var(--radius-pill); display:inline-flex; align-items:center; gap:6px;}
+  .status-pill .d{width:6px; height:6px; border-radius:50%; background:#0E8F5B;}
+  .receipt-actions{padding:24px 20px 8px; text-align:center;}
+  .save-link{display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:var(--ink); margin-bottom:16px;}
+  .save-link svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.2;}
+  .home-link{display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:var(--muted); margin-top:14px;}
+  .home-link svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.2;}
+
+  /* sign in */
+  .auth-wrap{padding:60px 20px;}
+  .auth-card{border:1px solid var(--line); border-radius:24px; padding:30px 24px; box-shadow:var(--shadow-card);}
+  .auth-eyebrow{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:800; margin-bottom:8px;}
+  .auth-card h2{font-size:26px; margin:0 0 22px;}
+  .oauth-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1.5px solid var(--line); border-radius:var(--radius-pill);
+    padding:14px; font-weight:700; font-size:14.5px; background:#fff; margin-bottom:20px;
+  }
+  .divider{display:flex; align-items:center; gap:12px; color:var(--muted-light); font-size:12.5px; font-weight:600; margin-bottom:20px;}
+  .divider::before, .divider::after{content:""; flex:1; height:1px; background:var(--line);}
+  .auth-field{border:1px solid var(--line); border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .auth-field svg{width:17px; height:17px; stroke:var(--muted); fill:none; stroke-width:2;}
+  .auth-field input{border:none; outline:none; width:100%; font-size:15px; background:transparent; color:var(--ink);}
+  .auth-foot{text-align:center; font-size:13.5px; color:var(--muted); margin-top:18px;}
+  .auth-foot b{color:var(--green-700);}
+
+  /* admin locked */
+  .locked-wrap{padding:70px 26px; text-align:center;}
+  .locked-icn{width:74px; height:74px; border-radius:50%; background:var(--mint-50); border:1px solid var(--mint-100); display:flex; align-items:center; justify-content:center; margin:0 auto 22px;}
+  .locked-icn svg{width:30px; height:30px; stroke:var(--green-800); fill:none; stroke-width:1.8;}
+  .locked-wrap h2{font-size:23px; margin:0 0 12px;}
+  .locked-wrap p{font-size:14px; color:var(--muted); line-height:1.6; max-width:34ch; margin:0 auto 26px;}
+
+  /* pricing page extras */
+  .table-bestfor th:nth-child(2){white-space:nowrap;}
+  .addons-card{border:1px solid var(--line); border-radius:20px; padding:6px 20px; margin-bottom:12px;}
+  .addon-row{display:flex; align-items:center; justify-content:space-between; padding:15px 0; border-bottom:1px solid var(--mint-100); font-size:14.5px;}
+  .addon-row:last-child{border-bottom:none;}
+  .addon-row .an{font-weight:600;}
+  .addon-row .av{font-weight:700; color:var(--green-800);}
+
+  .page-fade{animation:fadein .28s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  [data-page]{display:none;}
+  [data-page].active{display:block;}
+
+  @media (max-width:360px){
+    .hero h1{font-size:34px;}
+    .stats-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta name="google-signin-client_id" content="86812839530-3f11ruihv79mus27smp4lco66dif0joc.apps.googleusercontent.com">
+</head>
+<body>
+
+<div class="app-shell" id="app-shell">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <button class="brand" onclick="go('home')" aria-label="Amaravati Print Centre home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>
+      </span>
+      <span class="brand-text">
+        <span class="name">Amaravati</span>
+        <span class="tag">PRINT CENTRE</span>
+      </span>
+    </button>
+    <button class="menu-btn" id="menu-toggle" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+  </header>
+
+  <!-- ===================== NAV DRAWER ===================== -->
+  <div class="nav-drawer" id="nav-drawer">
+    <div class="nav-scrim" id="nav-scrim"></div>
+    <div class="nav-panel">
+      <div class="nav-panel-header">
+        <button class="brand" onclick="go('home')">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>
+          </span>
+          <span class="brand-text">
+            <span class="name">Amaravati</span>
+            <span class="tag">PRINT CENTRE</span>
+          </span>
+        </button>
+        <button class="menu-btn" id="menu-close" aria-label="Close menu">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+        </button>
+      </div>
+      <nav class="nav-links">
+        <a href="#" onclick="return nav('home')">Home</a>
+        <a href="#" onclick="return nav('print',1)">Print now</a>
+        <a href="#" onclick="return nav('pricing')">Pricing</a>
+        <a href="#" id="auth-nav-link" onclick="return nav('signin')">Secure Login</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ===================== HOME PAGE ===================== -->
+  <main data-page="home" class="active page-fade">
+    <section class="hero">
+      <span class="eyebrow">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/></svg>
+        Secure printing, on demand
+      </span>
+      <h1>Print anything, securely, in seconds</h1>
+      <p class="lede">Amaravati Print Centre is a modern printing service built for students, professionals and government offices across Andhra Pradesh. Sign in securely, upload your document from any device over an encrypted connection, and preview every page before you commit. Configure paper, colour, sides, binding and copies with live pricing, then pay with your preferred UPI app — PhonePe, Google Pay or Paytm — directly from your phone.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" onclick="nav('print',1)">Start printing
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <button class="btn btn-secondary" onclick="nav('pricing')">See pricing</button>
+      </div>
+      <div class="check-row">
+        <span><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Secure login</span>
+        <span><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>UPI-only</span>
+        <span><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Available 24×7</span>
+      </div>
+    </section>
+
+    <div class="kiosk-card">
+      <div class="kiosk-top">
+        <div class="kiosk-id">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>
+          </span>
+          Print Station
+        </div>
+        <span class="status-ready">READY</span>
+      </div>
+      <div class="kiosk-ring">
+        <div class="inner">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>
+        </div>
+      </div>
+      <div class="kiosk-actions">
+        <div class="item"><span class="icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/><path d="M9 12l2 2 4-4"/></svg></span>Secure upload</div>
+        <div class="item"><span class="icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></span>From device</div>
+        <div class="item"><span class="icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="14" y1="17.5" x2="21" y2="17.5"/></svg></span>Scan QR</div>
+      </div>
+      <div class="last-print-row" id="last-print-row" style="display:none;">
+        <span class="rupee-badge"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="4" x2="18" y2="4"/><line x1="6" y1="8" x2="18" y2="8"/><path d="M6 4c6 0 6 8 0 8h9"/><path d="M12 12l7 8"/></svg></span>
+        <span class="label" id="last-print-label">No prints yet</span>
+        <span class="val" id="last-print-val">—</span>
+      </div>
+      <div class="stats-grid">
+        <div><div class="num" id="stat-prints">—</div><div class="lbl">Prints delivered</div></div>
+        <div><div class="num" id="stat-avg">—</div><div class="lbl">Avg print time</div></div>
+        <div><div class="num" id="stat-users">—</div><div class="lbl">Verified users</div></div>
+        <div><div class="num" id="stat-rating">—</div><div class="lbl">Google rating</div></div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <span class="eyebrow">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/></svg>
+          Why Amaravati
+        </span>
+        <h2>Printing built like a<br>consumer product</h2>
+        <p>Every part of the Amaravati Print Centre experience — from secure upload and live preview to UPI checkout and encrypted file handling — is engineered for reliability, speed and complete peace of mind, tuned specifically for Andhra Pradesh&#39;s campuses, courts, offices and climate.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Secure upload from device</h3>
+        <p>Send PDFs, Word documents and images from your phone or laptop over an encrypted, signed-in session — no cables, no shared drives, no risky USB sticks. Your file is tied to your account and never visible to anyone else.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3>Live preview &amp; pricing</h3>
+        <p>See a true preview of what will come out of the tray and watch the price update in real time as you change size, colour, sides, paper and binding. Reject, reorder or edit before you ever pay a rupee.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="11" x2="22" y2="11"/><line x1="6" y1="15" x2="10" y2="15"/></svg></div>
+        <h3>UPI-only checkout</h3>
+        <p>Pay directly from PhonePe, Google Pay or Paytm. We open your chosen app with the exact order amount and merchant details pre-filled — no card entry, no cash, no wallet top-ups, no counter conversations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg></div>
+        <h3>Auto-wipe &amp; privacy</h3>
+        <p>Your files are stored only as long as the print job needs them and are securely shredded from every print station the moment the tray finishes. Nothing is retained, indexed or shared. Privacy is the default, not a setting.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 11 14 9 22 21 10 13 10 13 2"/></svg></div>
+        <h3>Under 60 seconds, end-to-end</h3>
+        <p>From secure upload to a warm print in the tray in less than a minute for a typical A4 document. Optimised for busy campus mornings, tender deadlines and government office rushes across Andhra Pradesh.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="14" y1="17.5" x2="21" y2="17.5"/></svg></div>
+        <h3>QR receipts &amp; GST invoices</h3>
+        <p>Every order gets a scannable QR receipt and an instant GST-compliant invoice to your email, so re-prints, expense claims and refunds are one tap away — perfect for offices, freelancers and colleges.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>How it works</h2>
+        <p>Four secure, transparent steps — no queue, no cash, no guesswork. From signed-in upload to warm prints in your hand in under a minute.</p>
+      </div>
+      <div class="step-card"><div class="step-num">01</div><h3>Sign in &amp; upload securely</h3><p>Sign in with your Amaravati account and upload a PDF, DOC, DOCX, PNG, JPG or WEBP from your phone or laptop over an encrypted, private session tied to you.</p></div>
+      <div class="step-card"><div class="step-num">02</div><h3>Configure &amp; preview</h3><p>Choose paper size (A4 to A1), colour or B&amp;W, single or double-sided, paper type, binding and copies. Live pricing and a real preview update instantly.</p></div>
+      <div class="step-card"><div class="step-num">03</div><h3>Pay with UPI</h3><p>Pick PhonePe, Google Pay or Paytm — your app opens with the exact amount and merchant pre-filled. Approve on your device, no cards or cash needed.</p></div>
+      <div class="step-card"><div class="step-num">04</div><h3>Collect &amp; verify</h3><p>Watch the print station whir. Collect warm prints from the tray, save the QR receipt and get a GST-compliant invoice by email — files auto-wipe when you&#39;re done.</p></div>
+    </section>
+
+    <section class="section">
+      <div class="price-heading-row">
+        <div>
+          <h2 style="margin:0 0 10px; font-size:26px;">Fair, transparent pricing</h2>
+          <p style="font-size:14px; color:var(--muted); line-height:1.6; margin:0; max-width:44ch;">Pay only for what you print. Duplex prints get a 10% discount, premium paper and binding are transparent add-ons, and every order gets a GST-compliant invoice emailed to you instantly — no membership fees, no minimums, no surprises.</p>
+        </div>
+      </div>
+      <a href="#" class="price-link" onclick="return nav('pricing')" style="margin-bottom:18px; display:inline-flex;">See full price list
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <table class="price-table">
+        <thead><tr><th>Size</th><th>Black &amp; White</th><th>Colour</th></tr></thead>
+        <tbody>
+          <tr><td class="size">A4</td><td>₹2 / page</td><td>₹8 / page</td></tr>
+          <tr><td class="size">A3</td><td>₹5 / page</td><td>₹20 / page</td></tr>
+          <tr><td class="size">A2</td><td>₹15 / page</td><td>₹45 / page</td></tr>
+          <tr><td class="size">A1</td><td>₹30 / page</td><td>₹90 / page</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="cta-banner">
+      <h2>Ready to print?</h2>
+      <p>Join thousands of students, freelancers and offices printing smarter every day.</p>
+      <button class="btn btn-secondary" onclick="nav('print',1)">Start your first print
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>
+        </span>
+        <span class="brand-text"><span class="name">Amaravati Print Centre</span></span>
+      </div>
+      <p class="footer-desc">Secure, self-service printing across Andhra Pradesh. Encrypted uploads, UPI-only checkout, GST invoices and auto-wiped files — built for students, professionals and government offices.</p>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a onclick="nav('print',1)">Print now</a>
+        <a onclick="nav('pricing')">Pricing</a>
+        
+      </div>
+      <div class="footer-col">
+        <h4>Trust</h4>
+        <span class="trust-item"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>256-bit encryption</span>
+        <span class="trust-item"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 11 14 9 22 21 10 13 10 13 2"/></svg>Under 60s prints</span>
+        <span class="trust-item"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg>UPI verified</span>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <span class="contact-item">Station support: +91 90000 00000</span>
+        <span class="contact-item">hello@amaravatiprint.in</span>
+      </div>
+      <div class="footer-bottom">© 2026 Amaravati Print Centre · Powered by PhonePe · Google Pay · Paytm</div>
+    </footer>
+  </main>
+
+  <!-- ===================== PRICING PAGE ===================== -->
+  <main data-page="pricing" class="page-fade">
+    <section class="section" style="padding-top:34px;">
+      <div class="section-head" style="text-align:left; margin-bottom:26px;">
+        <h2 style="font-size:32px;">Transparent pricing</h2>
+        <p style="margin:0; max-width:none;">Pay per page. No membership fees. No hidden charges. Invoiced with GST.</p>
+      </div>
+      <table class="price-table table-bestfor">
+        <thead><tr><th>Size</th><th>Best for</th><th>B&amp;W / page</th><th>Colour / page</th></tr></thead>
+        <tbody>
+          <tr><td class="size">A4</td><td class="bestfor">Standard letter</td><td class="amt">₹2</td><td class="amt">₹8</td></tr>
+          <tr><td class="size">A3</td><td class="bestfor">Tabloid / posters</td><td class="amt">₹5</td><td class="amt">₹20</td></tr>
+          <tr><td class="size">A2</td><td class="bestfor">Small posters</td><td class="amt">₹15</td><td class="amt">₹45</td></tr>
+          <tr><td class="size">A1</td><td class="bestfor">Large architecture</td><td class="amt">₹30</td><td class="amt">₹90</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" style="padding-top:12px;">
+      <h2 style="font-size:23px; margin:0 0 16px;">Add-ons</h2>
+      <div class="addons-card">
+        <div class="addon-row"><span class="an">Double-sided</span><span class="av">10% off pages</span></div>
+        <div class="addon-row"><span class="an">Premium paper 100gsm</span><span class="av">+30%</span></div>
+        <div class="addon-row"><span class="an">Matte finish</span><span class="av">+40%</span></div>
+        <div class="addon-row"><span class="an">Glossy finish</span><span class="av">+60%</span></div>
+        <div class="addon-row"><span class="an">Staple binding</span><span class="av">₹5</span></div>
+        <div class="addon-row"><span class="an">Spiral binding</span><span class="av">₹40</span></div>
+        <div class="addon-row"><span class="an">Hardcover binding</span><span class="av">₹120</span></div>
+        <div class="addon-row"><span class="an">GST</span><span class="av">18% on subtotal</span></div>
+      </div>
+    </section>
+
+    <div class="cta-banner">
+      <h2 style="font-size:23px;">Bulk &amp; campus rates</h2>
+      <p style="text-align:left; max-width:none;">Colleges, coaching centres and offices printing 5,000+ pages a month get up to 30% off. GST-registered invoicing included.</p>
+      <div style="text-align:left; margin-bottom:22px; font-size:14px; font-weight:600;">
+        <div style="padding:6px 0;">✓ Dedicated account manager</div>
+        <div style="padding:6px 0;">✓ Monthly consolidated billing</div>
+        <div style="padding:6px 0;">✓ On-site print station installation</div>
+        <div style="padding:6px 0;">✓ Priority tech support</div>
+      </div>
+      <button class="btn btn-secondary btn-block" onclick="nav('print',1)">Start printing now
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg></span>
+        <span class="brand-text"><span class="name">Amaravati Print Centre</span></span>
+      </div>
+      <p class="footer-desc">Secure, self-service printing across Andhra Pradesh. Encrypted uploads, UPI-only checkout, GST invoices and auto-wiped files — built for students, professionals and government offices.</p>
+      <div class="footer-col"><h4>Product</h4><a onclick="nav('print',1)">Print now</a><a onclick="nav('pricing')">Pricing</a></div>
+      <div class="footer-bottom">© 2026 Amaravati Print Centre · Powered by PhonePe · Google Pay · Paytm</div>
+    </footer>
+  </main>
+
+  <!-- ===================== PRINT FLOW ===================== -->
+  <main data-page="print" class="page-fade">
+    <div class="flow-wrap">
+      <div class="stepper" id="stepper"></div>
+      <div id="flow-body"></div>
+    </div>
+  </main>
+
+  <!-- ===================== SUCCESS / RECEIPT ===================== -->
+  <main data-page="success" class="page-fade">
+    <div id="success-body"></div>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg></span>
+        <span class="brand-text"><span class="name">Amaravati Print Centre</span></span>
+      </div>
+      <p class="footer-desc">Secure, self-service printing across Andhra Pradesh. Encrypted uploads, UPI-only checkout, GST invoices and auto-wiped files — built for students, professionals and government offices.</p>
+      <div class="footer-col"><h4>Product</h4><a onclick="nav('print',1)">Print now</a><a onclick="nav('pricing')">Pricing</a></div>
+      <div class="footer-bottom">© 2026 Amaravati Print Centre · Powered by PhonePe · Google Pay · Paytm</div>
+    </footer>
+  </main>
+
+  <!-- ===================== SIGN IN ===================== -->
+  <main data-page="signin" class="page-fade">
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="auth-eyebrow">Welcome back</div>
+        <h2>Sign in to continue</h2>
+        <button class="oauth-btn" onclick="googleAuth()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.7 0-14.3 4.4-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.6C29.6 36 26.9 37 24 37c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.7 40.5 16.3 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.6C41.6 35.6 45 30.4 45 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
+          Continue with Google
+        </button>
+        <div class="divider">or email</div>
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" style="display:none"/><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg>
+          <input type="email" placeholder="Email" id="auth-email">
+        </div>
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <input type="password" placeholder="Password" id="auth-pass">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="doSignIn()">Sign in
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <div class="auth-foot">New here? <b style="cursor:pointer" onclick="go('signup')">Create an account</b></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== SIGN UP ===================== -->
+  <main data-page="signup" class="page-fade">
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="auth-eyebrow">Get started</div>
+        <h2>Create your account</h2>
+        <button class="oauth-btn" onclick="googleAuth()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.7 0-14.3 4.4-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.6C29.6 36 26.9 37 24 37c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.7 40.5 16.3 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.6C41.6 35.6 45 30.4 45 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
+          Continue with Google
+        </button>
+        <div class="divider">or sign up with email</div>
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+          <input type="text" placeholder="Full name" id="su-name" autocomplete="name">
+        </div>
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg>
+          <input type="email" placeholder="you@gmail.com" id="su-email" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <input type="password" placeholder="Password" id="su-pass" autocomplete="new-password">
+        </div>
+        <div id="su-error" style="display:none; color:#B33A3A; font-size:13px; margin:-6px 0 12px; line-height:1.45;"></div>
+        <div style="font-size:12px; color:var(--muted); margin:-4px 0 14px; line-height:1.5;">
+          Password must be at least 8 characters, include 1 capital letter, 2–8 digits, and 1 special character from <b>#&nbsp;&amp;&nbsp;@&nbsp;!&nbsp;₹&nbsp;?&nbsp;*</b>.
+        </div>
+        <button class="btn btn-primary btn-block" onclick="doSignUp()">Create account
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <div class="auth-foot">Already have an account? <b style="cursor:pointer" onclick="go('signin')">Sign in</b></div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+/* ============================================================
+   AMARAVATI PRINT CENTRE — front-end prototype logic
+   Single-file, dependency-free.
+   ============================================================ */
+
+/* ---------- Backend connection ----------
+   Paste the deployed Google Apps Script Web App URL here (from
+   OrdersBackend.gs → Deploy → New deployment → Web App → Anyone).
+   Leave blank to run the site with no backend (orders won't be
+   saved, and default UPI details below are used as-is). */
+const SITE_CONFIG = {
+  gasUrl: 'https://script.google.com/macros/s/AKfycbxbxwFxujt5Mnvw8JhhxFCrw8UY_hJh59m5n3UG6AeUW-iL3y_Av6pRQFXLvDgCA-kn/exec'
+};
+
+/* Fallback UPI routing, used until the backend responds (or if no
+   backend is configured). The live values are fetched from
+   OrdersBackend.gs's PAYMENT_CONFIG at runtime via getConfig, so
+   the website owner only ever needs to edit the .gs file.
+
+   FIX: these fallback values used to be unregistered placeholder
+   text ('amaravatiprint@ybl' etc.) that don't correspond to any
+   real account. If a customer reached the payment screen before
+   the getConfig fetch finished (very possible — Apps Script Web
+   Apps can take several seconds to cold-start) or if the fetch
+   failed and was silently swallowed, the site would build a QR/
+   deep-link against those fake IDs, producing exactly the "invalid
+   UPI ID" / "could not load banking name" / "cannot pay with this
+   QR code" errors seen on-device. The fallback below now mirrors
+   the real, correct values in OrdersBackend.gs, so even if the
+   fetch never completes, payment still works correctly. */
+const PAYMENT_INFO = {
+  payeeName: 'Palleti Abhiram',
+  apps: { phonepe: '9542658821@ybl', gpay: 'stylishabhi50709@oksbi', paytm: '9542658821@ptyes' }
+};
+
+let paymentConfigReady = false;
+function fetchPaymentConfig(attempt){
+  attempt = attempt || 0;
+  if(!SITE_CONFIG.gasUrl) return;
+  fetch(SITE_CONFIG.gasUrl + '?action=getConfig')
+    .then(r => r.json())
+    .then(cfg => {
+      if(cfg && cfg.apps){
+        PAYMENT_INFO.payeeName = cfg.payeeName || PAYMENT_INFO.payeeName;
+        PAYMENT_INFO.apps = cfg.apps;
+        paymentConfigReady = true;
+        // If the customer is already sitting on the QR screen with a
+        // (possibly stale) fallback-based code, refresh it now that the
+        // authoritative config has arrived.
+        if(state.payPhase === 'qr' && state.selectedApp) renderLiveQr(state.selectedApp);
+      }
+    })
+    .catch(() => {
+      // FIX: retry with backoff instead of silently giving up — a cold
+      // Apps Script instance or a flaky mobile connection can fail the
+      // first attempt even though the backend is fine. The hardcoded
+      // fallback above is also now correct, so payment works either way.
+      if(attempt < 4) setTimeout(() => fetchPaymentConfig(attempt + 1), 1500 * (attempt + 1));
+    });
+}
+fetchPaymentConfig();
+
+/* ---------- Pricing tables ---------- */
+const PRICES = { A4:{bw:2, color:8}, A3:{bw:5, color:20}, A2:{bw:15, color:45}, A1:{bw:30, color:90} };
+const PAPER_MULT = { standard:1, premium:1.3, matte:1.4, glossy:1.6 };
+const PAPER_LABEL = { standard:'Standard', premium:'Premium', matte:'Matte', glossy:'Glossy' };
+const BINDING_COST = { none:0, staple:5, spiral:40, hardcover:120 };
+const BINDING_LABEL = { none:'None', staple:'Staple', spiral:'Spiral', hardcover:'Hardcover' };
+const SIDES_MULT = { single:1, double:0.9 };
+
+/* ---------- App state ---------- */
+const state = {
+  signedIn: false,
+  isAdmin: false,
+  file: null,               // {name, size, pages}
+  settings: { size:'A4', color:'bw', sides:'single', paperType:'premium', binding:'none', copies:1 },
+  step: 1,
+  selectedApp: null,
+  payPhase: 'select',   // 'select' | 'qr' | 'confirm'
+  qrExpiresAt: null,
+  qrExpired: false,
+  orderId: null,
+  confirmId: null
+};
+
+
+/* ---------- Navigation ---------- */
+function go(page){
+  document.querySelectorAll('[data-page]').forEach(el => el.classList.remove('active'));
+  const target = document.querySelector('[data-page="' + page + '"]');
+  if(target){ target.classList.add('active'); }
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+  closeNav();
+}
+
+function nav(page, step){
+  const GATED = ['print','pricing','success'];
+  if(GATED.indexOf(page) !== -1 && !state.signedIn){
+    state.pendingNav = { page: page, step: step };
+    go('signin');
+    return false;
+  }
+  if(page === 'print'){
+    state.step = step || 1;
+    renderFlow();
+  }
+  if(page === 'success'){ renderSuccess(); }
+  go(page);
+  return false;
+}
+
+/* ---------- Nav drawer ---------- */
+const drawer = document.getElementById('nav-drawer');
+document.getElementById('menu-toggle').addEventListener('click', () => drawer.classList.add('open'));
+document.getElementById('menu-close').addEventListener('click', closeNav);
+document.getElementById('nav-scrim').addEventListener('click', closeNav);
+function closeNav(){ drawer.classList.remove('open'); }
+
+function updateAuthUI(){
+  const link = document.getElementById('auth-nav-link');
+  link.textContent = state.signedIn ? 'Sign out' : 'Sign in';
+  link.onclick = function(){
+    if(state.signedIn){ state.signedIn = false; state.isAdmin = false; updateAuthUI(); go('home'); }
+    else { nav('signin'); }
+    return false;
+  };
+}
+updateAuthUI();
+
+function doSignIn(){
+  state.signedIn = true;
+  updateAuthUI();
+  const pending = state.pendingNav;
+  state.pendingNav = null;
+  if(pending && pending.page){ nav(pending.page, pending.step); }
+  else { nav('home'); }
+}
+
+/* ---------- Pricing calculation ---------- */
+function computeEstimate(){
+  const s = state.settings;
+  const base = PRICES[s.size][state.settings.color];
+  const perPage = base * PAPER_MULT[s.paperType] * SIDES_MULT[s.sides];
+  const pages = state.file ? state.file.pages : 1;
+  const copies = s.copies;
+  const rawSubtotal = (perPage * pages * copies) + (BINDING_COST[s.binding] * copies);
+  const subtotal = Math.ceil(rawSubtotal);
+  const gst = Math.round(subtotal * 0.18);
+  const total = subtotal + gst;
+  return { perPage, pages, copies, subtotal, gst, total };
+}
+
+/* ---------- Stepper ---------- */
+function renderStepper(){
+  const el = document.getElementById('stepper');
+  let html = '';
+  for(let i = 1; i <= 4; i++){
+    if(i > 1) html += '<div class="seg' + (i - 1 < state.step ? ' done' : '') + '"></div>';
+    let cls = 'dot';
+    let inner = i;
+    if(i < state.step){ cls += ' done'; inner = '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"/></svg>'; }
+    else if(i === state.step){ cls += ' active'; }
+    html += '<div class="' + cls + '">' + inner + '</div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ---------- Flow router ---------- */
+function renderFlow(){
+  renderStepper();
+  const body = document.getElementById('flow-body');
+  if(state.step === 1) body.innerHTML = tplUpload();
+  else if(state.step === 2) body.innerHTML = tplSettings();
+  else if(state.step === 3) body.innerHTML = tplReview();
+  else if(state.step === 4) body.innerHTML = tplPay();
+  bindFlowEvents();
+}
+
+/* ---------- STEP 1: Upload ---------- */
+function tplUpload(){
+  const hasFile = !!state.file;
+  return `
+    <div class="flow-head">
+      <h2>Upload your files</h2>
+      <p>Drop a PDF, DOC, DOCX, PNG, JPG or WEBP file up to 20&nbsp;MB. Uploads happen over an encrypted, signed-in session and are auto-wiped after printing.</p>
+    </div>
+    <div class="upload-box" id="upload-box">
+      <div class="upload-icn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <h4>Drag &amp; drop or click to browse</h4>
+      <div class="types">PDF &middot; DOC &middot; DOCX &middot; PNG &middot; JPG &middot; WEBP</div>
+      <span class="pin-pill">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/><path d="M9 12l2 2 4-4"/></svg>
+        Secure upload &middot; encrypted &amp; auto-wiped
+      </span>
+      <input type="file" id="file-input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp">
+    </div>
+    ${hasFile ? `
+    <div class="files-summary"><span>1 FILE READY</span><span>${state.file.pages} pages total</span></div>
+    <div class="file-row">
+      <span class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+      <span class="meta"><span class="fn">${state.file.name}</span><br><span class="fs">${state.file.size} &middot; ~${state.file.pages} page${state.file.pages>1?'s':''}</span></span>
+      <button class="rm" id="rm-file"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>` : ''}
+    <button class="btn btn-primary btn-block" id="continue-settings" ${hasFile ? '' : 'disabled'}>Continue to settings
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  `;
+}
+
+function bindFlowEvents(){
+  stopQrTimer();
+  if(state.step === 1){
+    const box = document.getElementById('upload-box');
+    const input = document.getElementById('file-input');
+    box.addEventListener('click', () => input.click());
+    box.addEventListener('dragover', e => { e.preventDefault(); box.classList.add('drag'); });
+    box.addEventListener('dragleave', () => box.classList.remove('drag'));
+    box.addEventListener('drop', e => {
+      e.preventDefault(); box.classList.remove('drag');
+      if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    input.addEventListener('change', () => { if(input.files.length) handleFile(input.files[0]); });
+    const rm = document.getElementById('rm-file');
+    if(rm) rm.addEventListener('click', (e) => { e.stopPropagation(); state.file = null; renderFlow(); });
+    document.getElementById('continue-settings').addEventListener('click', () => {
+      if(!state.file) return;
+      state.step = 2; renderFlow();
+    });
+  }
+  if(state.step === 2){
+    document.querySelectorAll('.opt-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.dataset.group, val = btn.dataset.val;
+        state.settings[group] = val;
+        renderFlow();
+      });
+    });
+    const dec = document.getElementById('copy-dec'), inc = document.getElementById('copy-inc');
+    if(dec) dec.addEventListener('click', () => { if(state.settings.copies>1){ state.settings.copies--; renderFlow(); } });
+    if(inc) inc.addEventListener('click', () => { if(state.settings.copies<99){ state.settings.copies++; renderFlow(); } });
+    const review = document.getElementById('go-review');
+    if(review) review.addEventListener('click', () => { state.step = 3; renderFlow(); });
+  }
+  if(state.step === 3){
+    document.querySelectorAll('.edit-link').forEach(l => l.addEventListener('click', () => { state.step = 2; renderFlow(); }));
+    const proceed = document.getElementById('go-pay');
+    if(proceed) proceed.addEventListener('click', () => { state.step = 4; renderFlow(); });
+    const back = document.getElementById('back-settings');
+    if(back) back.addEventListener('click', () => { state.step = 2; renderFlow(); });
+  }
+  if(state.step === 4){
+    if(state.payPhase === 'select'){
+      document.querySelectorAll('.pay-app-row').forEach(row => {
+        row.addEventListener('click', () => selectPayApp(row.dataset.app));
+      });
+    } else if(state.payPhase === 'qr'){
+      startQrTimer();
+      renderLiveQr(state.selectedApp);
+      const cont = document.getElementById('qr-continue');
+      if(cont) cont.addEventListener('click', () => launchPaymentApp(state.selectedApp, true));
+      const regen = document.getElementById('qr-regen');
+      if(regen) regen.addEventListener('click', () => selectPayApp(state.selectedApp));
+      const changeApp = document.getElementById('qr-change-app');
+      if(changeApp) changeApp.addEventListener('click', () => { cancelQrSession(); state.payPhase = 'select'; renderFlow(); });
+    } else {
+      const retry = document.getElementById('reopen-app');
+      if(retry) retry.addEventListener('click', () => launchPaymentApp(state.selectedApp, true));
+      const changeApp = document.getElementById('change-app');
+      if(changeApp) changeApp.addEventListener('click', () => { state.payPhase = 'select'; renderFlow(); });
+      const confirmBtn = document.getElementById('confirm-paid');
+      if(confirmBtn) confirmBtn.addEventListener('click', confirmPayment);
+    }
+  }
+}
+
+/* ---------- File handling ---------- */
+function handleFile(f){
+  if(!f) return;
+  // STRICT allow-list — extension AND MIME must both match.
+  const ALLOWED = {
+    'pdf':  ['application/pdf'],
+    'doc':  ['application/msword'],
+    'docx': ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    'png':  ['image/png'],
+    'jpg':  ['image/jpeg'],
+    'jpeg': ['image/jpeg'],
+    'webp': ['image/webp']
+  };
+  const name = f.name || 'document';
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const okExt = Object.prototype.hasOwnProperty.call(ALLOWED, ext);
+  const okMime = !f.type || ALLOWED[ext] && ALLOWED[ext].indexOf(f.type) !== -1;
+  if(!okExt || !okMime){
+    alert('Unsupported file type. Only PDF, DOC, DOCX, PNG, JPG and WEBP are allowed.');
+    return;
+  }
+  if(f.size && f.size > 20 * 1024 * 1024){
+    alert('File is larger than 20 MB. Please upload a smaller file.');
+    return;
+  }
+  const bytes = f.size || 0;
+  const sizeStr = formatBytes(bytes);
+
+  // Provisional state — real page count arrives async for PDFs.
+  state.file = { name: name, size: sizeStr, bytes: bytes, pages: 1, ext: ext, pending: true };
+  renderFlow();
+
+  if(ext === 'pdf'){
+    countPdfPages(f).then(function(n){
+      state.file.pages = n; state.file.pending = false; renderFlow();
+    }).catch(function(err){
+      console.error('PDF page count failed', err);
+      state.file.pages = 1; state.file.pending = false;
+      alert('Could not read this PDF. It may be corrupted or password-protected.');
+      renderFlow();
+    });
+  } else if(ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'webp'){
+    state.file.pages = 1; state.file.pending = false; renderFlow();
+  } else {
+    // DOC / DOCX: pages cannot be reliably counted client-side.
+    // Ask the user for the real page count so nothing is faked.
+    var input = prompt('This is a Word document. Client-side software cannot read Word page counts reliably.\n\nHow many printed pages does this document have?', '1');
+    var n = parseInt(input, 10);
+    if(!isFinite(n) || n < 1) n = 1;
+    if(n > 2000) n = 2000;
+    state.file.pages = n; state.file.pending = false; renderFlow();
+  }
+}
+
+function formatBytes(bytes){
+  if(!bytes) return '0 B';
+  if(bytes >= 1024*1024) return (bytes/1024/1024).toFixed(2) + ' MB';
+  if(bytes >= 1024) return (bytes/1024).toFixed(0) + ' KB';
+  return bytes + ' B';
+}
+
+function countPdfPages(file){
+  return new Promise(function(resolve, reject){
+    if(!window.pdfjsLib){ reject(new Error('pdf.js not loaded')); return; }
+    var reader = new FileReader();
+    reader.onload = function(){
+      var data = new Uint8Array(reader.result);
+      pdfjsLib.getDocument({ data: data }).promise
+        .then(function(pdf){ resolve(pdf.numPages); })
+        .catch(reject);
+    };
+    reader.onerror = function(){ reject(reader.error); };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+/* ---------- STEP 2: Settings ---------- */
+function pill(group, val, label, sel){
+  return `<button class="opt-pill${sel===val?' sel':''}" data-group="${group}" data-val="${val}">${label}</button>`;
+}
+function tplSettings(){
+  const s = state.settings;
+  const est = computeEstimate();
+  return `
+    <div class="flow-head"><h2>Print settings</h2><p>Tweak your options — pricing updates live below.</p></div>
+
+    <div class="opt-group">
+      <div class="opt-label"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Paper size</div>
+      <div class="opt-row">
+        ${['A4','A3','A2','A1'].map(v => pill('size', v, v, s.size)).join('')}
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <div class="opt-label"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>Colour mode</div>
+      <div class="opt-row">
+        ${pill('color','bw','Black & White', s.color)}
+        ${pill('color','color','Full colour', s.color)}
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <div class="opt-label"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Sides</div>
+      <div class="opt-row">
+        ${pill('sides','single','Single-sided', s.sides)}
+        ${pill('sides','double','Double-sided <small>(−10%)</small>', s.sides).replace('Double-sided &lt;small&gt;(−10%)&lt;/small&gt;','Double-sided <small>(−10%)</small>')}
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <div class="opt-label"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Paper type</div>
+      <div class="opt-row">
+        ${pill('paperType','standard','Standard 80gsm', s.paperType)}
+        ${pill('paperType','premium','Premium 100gsm', s.paperType)}
+        ${pill('paperType','matte','Matte', s.paperType)}
+        ${pill('paperType','glossy','Glossy', s.paperType)}
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <div class="opt-label"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Binding</div>
+      <div class="opt-row">
+        ${pill('binding','none','None', s.binding)}
+        ${pill('binding','staple','Staple ₹5', s.binding)}
+        ${pill('binding','spiral','Spiral ₹40', s.binding)}
+        ${pill('binding','hardcover','Hardcover ₹120', s.binding)}
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <div class="opt-label"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V4a2 2 0 0 1 2-2h12"/></svg>Copies</div>
+      <div class="copies-row">
+        <button id="copy-dec">−</button>
+        <span class="n">${s.copies}</span>
+        <button id="copy-inc">+</button>
+      </div>
+    </div>
+
+    <div class="estimate-card">
+      <h3>Live estimate</h3>
+      <div class="est-line"><span class="l">Files</span><span class="v">1</span></div>
+      <div class="est-line"><span class="l">Total pages</span><span class="v">${est.pages}</span></div>
+      <div class="est-line"><span class="l">Per page</span><span class="v">₹${est.perPage.toFixed(2)}</span></div>
+      <div class="est-line"><span class="l">Copies</span><span class="v">×${est.copies}</span></div>
+      <div class="est-divider"></div>
+      <div class="est-line"><span class="l">Subtotal</span><span class="v">₹${est.subtotal}</span></div>
+      <div class="est-line"><span class="l">GST (18%)</span><span class="v">₹${est.gst}</span></div>
+      <div class="est-total-row"><span class="tl">Total payable</span><span class="tv">₹${est.total}</span></div>
+    </div>
+
+    <button class="btn btn-primary btn-block" id="go-review">Review order
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  `;
+}
+
+/* ---------- STEP 3: Review ---------- */
+function tplReview(){
+  const s = state.settings;
+  const est = computeEstimate();
+  return `
+    <div class="flow-head"><h2>Review your order</h2><p>One last look before you pay.</p></div>
+
+    <div class="review-card">
+      <div class="rc-head"><h3>Files</h3><a class="edit-link" href="#">Edit <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></div>
+      <div class="file-row" style="margin-bottom:0;">
+        <span class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+        <span class="meta"><span class="fn">${state.file ? state.file.name : 'document.pdf'}</span><br><span class="fs">~${est.pages} page${est.pages>1?'s':''}</span></span>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="rc-head"><h3>Settings</h3><a class="edit-link" href="#">Edit <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></div>
+      <div class="review-grid">
+        <div class="ri"><div class="rk">Paper size</div><div class="rv">${s.size}</div></div>
+        <div class="ri"><div class="rk">Colour mode</div><div class="rv">${s.color==='bw'?'Black & White':'Full colour'}</div></div>
+        <div class="ri"><div class="rk">Sides</div><div class="rv">${s.sides==='single'?'Single-sided':'Double-sided'}</div></div>
+        <div class="ri"><div class="rk">Paper type</div><div class="rv">${PAPER_LABEL[s.paperType]}</div></div>
+        <div class="ri"><div class="rk">Binding</div><div class="rv">${BINDING_LABEL[s.binding]}</div></div>
+        <div class="ri"><div class="rk">Copies</div><div class="rv">×${s.copies}</div></div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <h3 style="margin-bottom:16px;">Bill summary</h3>
+      <div class="bill-row"><span>${est.pages} pages × ${est.copies} copies</span><span>₹${est.subtotal}</span></div>
+      <div class="bill-row"><span>GST (18%)</span><span>₹${est.gst}</span></div>
+      <div class="bill-total"><span class="bt-l">Total</span><span class="bt-v">₹${est.total}</span></div>
+    </div>
+
+    <button class="btn btn-primary btn-block" id="go-pay">Proceed to pay ₹${est.total}
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+    <a href="#" class="back-link" id="back-settings">← Back to settings</a>
+  `;
+}
+
+/* ---------- STEP 4: Pay ---------- */
+function tplPay(){
+  const est = computeEstimate();
+  if(state.payPhase === 'confirm'){
+    const app = state.selectedApp;
+    const color = app==='phonepe' ? '#5F259F' : app==='gpay' ? '#1AA260' : '#0F4EAD';
+    return `
+      <div class="pay-amount"><h2>Pay ₹${est.total}</h2></div>
+      <div style="text-align:center; margin-bottom:26px;">
+        <span class="otp-chip"><span class="dotc" style="background:${color}"></span>${APP_NAMES[app]}</span>
+      </div>
+      <div class="app-redirect-note" id="app-redirect-msg" style="text-align:center; margin-bottom:22px;">
+        We opened <b>${APP_NAMES[app]}</b> with a request to pay <b>₹${est.total}</b> to Amaravati Print Centre.
+        Complete the payment there, then confirm below.
+      </div>
+      <button class="btn btn-primary btn-block" id="confirm-paid" style="margin-bottom:12px;">I've completed the payment
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"/></svg>
+      </button>
+      <button class="btn btn-secondary btn-block" id="reopen-app" style="margin-bottom:16px;">Open ${APP_NAMES[app]} again</button>
+      <a href="#" class="back-link" id="change-app">← Choose a different app</a>
+      <div class="secure-note" style="margin-top:22px;"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>Secured by UPI · 256-bit encryption</div>
+    `;
+  }
+  if(state.payPhase === 'qr'){
+    const app = state.selectedApp;
+    const color = app==='phonepe' ? '#5F259F' : app==='gpay' ? '#1AA260' : '#0F4EAD';
+    return `
+      <div class="pay-amount"><h2>Pay ₹${est.total}</h2></div>
+      <div style="text-align:center; margin-bottom:18px;">
+        <span class="otp-chip"><span class="dotc" style="background:${color}"></span>${APP_NAMES[app]}</span>
+      </div>
+      <div class="qr-timer-wrap">
+        <svg class="qr-timer-ring" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="28" class="ring-bg"/>
+          <circle cx="32" cy="32" r="28" class="ring-fg" id="ring-fg"/>
+        </svg>
+        <span class="qr-timer-text" id="qr-timer-text">02:00</span>
+      </div>
+      <div class="qr-photo-wrap" id="qr-photo-wrap">
+        <div id="qr-photo-img" style="display:flex; align-items:center; justify-content:center; background:#fff; padding:12px;"></div>
+        <div class="qr-expired-overlay" id="qr-expired-overlay">QR Expired</div>
+      </div>
+      <div class="qr-cap">Scan with ${APP_NAMES[app]} or any UPI app</div>
+      <button class="btn btn-primary btn-block" id="qr-continue" style="margin:16px 0 10px;">Continue with ${APP_NAMES[app]}
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button class="btn btn-secondary btn-block" id="qr-regen" style="display:none; margin-bottom:16px;">Generate New QR</button>
+      <a href="#" class="back-link" id="qr-change-app">← Choose a different app</a>
+      <div class="secure-note" style="margin-top:22px;"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>Secured by UPI · 256-bit encryption</div>
+    `;
+  }
+  return `
+    <div class="pay-amount"><h2>Pay ₹${est.total}</h2></div>
+    <p style="text-align:center; color:var(--muted); font-size:14px; margin:0 0 26px;">Choose the app you want to pay with. It will open on your device to complete the payment.</p>
+
+    <div class="pay-apps-label">Select payment app</div>
+    <div class="pay-app-row" data-app="phonepe">
+      <span class="aicn" style="background:#5F259F;"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="11" x2="22" y2="11"/></svg></span>
+      <span class="ameta"><span class="an">PhonePe</span><br><span class="as">Opens the PhonePe app</span></span>
+      <svg class="arrow" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </div>
+    <div class="pay-app-row" data-app="gpay">
+      <span class="aicn" style="background:#1AA260;"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="11" x2="22" y2="11"/></svg></span>
+      <span class="ameta"><span class="an">Google Pay</span><br><span class="as">Opens the Google Pay app</span></span>
+      <svg class="arrow" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </div>
+    <div class="pay-app-row" data-app="paytm">
+      <span class="aicn" style="background:#0F4EAD;"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="11" x2="22" y2="11"/></svg></span>
+      <span class="ameta"><span class="an">Paytm</span><br><span class="as">Opens the Paytm app</span></span>
+      <svg class="arrow" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </div>
+
+    <div class="secure-note"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>Secured by UPI · 256-bit encryption</div>
+  `;
+}
+
+/* Launch the chosen UPI app via its native URI scheme, falling back to the
+   generic upi:// intent (which lets the OS offer an app chooser) if the
+   specific app isn't installed. This uses real UPI intent parameters, so on
+   an actual phone with the app installed it opens a genuine payment request
+   for the exact order amount — there is no simulated "fake" step here. */
+const APP_NAMES = { phonepe:'PhonePe', gpay:'Google Pay', paytm:'Paytm' };
+
+function buildUpiLinks(app){
+  const est = computeEstimate();
+  if(!state.orderId) state.orderId = 'APC' + Date.now().toString(36).toUpperCase();
+  // FIX: this inner fallback used to point at the same fake placeholder
+  // ('amaravatiprint@ybl') regardless of which app was chosen, so even
+  // after fixing PAYMENT_INFO above, a missing/undefined entry for one
+  // specific app (e.g. a malformed getConfig response) would still route
+  // to an invalid ID. Fall back to the correct real VPA for that specific
+  // app instead of one shared fake value.
+  const FALLBACK_VPA = { phonepe: '9542658821@ybl', gpay: 'stylishabhi50709@oksbi', paytm: '9542658821@ptyes' };
+  const rawVpa = (PAYMENT_INFO.apps && PAYMENT_INFO.apps[app]) || FALLBACK_VPA[app] || '9542658821@ybl';
+  const pa = encodeURIComponent(rawVpa);
+  const pn = encodeURIComponent(PAYMENT_INFO.payeeName || 'Palleti Abhiram');
+  const am = Number(est.total).toFixed(2);
+  const tn = encodeURIComponent(state.orderId);
+  const params = 'pa=' + pa + '&pn=' + pn + '&am=' + am + '&cu=INR&tn=' + tn;
+  // Standard NPCI "upi://pay" deep link — this is the ONE URI scheme every
+  // UPI app (PhonePe, Google Pay, Paytm, BHIM, etc.) registers as a handler
+  // for on Android. App-specific schemes like "phonepe://", "tez://" or
+  // "paytmmp://" are undocumented/deprecated and frequently blocked by the
+  // OS or browser, which is what produced the repeating "no app can handle
+  // this action" console errors. Using the single standard scheme is what
+  // actually opens the installed app reliably.
+  return { appUri: 'upi://pay?' + params, genericUpi: 'upi://pay?' + params };
+}
+
+/* Render a REAL, scannable QR code that encodes the live UPI payment link
+   for the CURRENT order (amount + order id baked in). Because the order id
+   and amount change every time selectPayApp() runs, this image visibly
+   changes on every "Generate New QR" click — unlike a static bundled photo. */
+let qrCodeInstance = null;
+function renderLiveQr(app){
+  const host = document.getElementById('qr-photo-img');
+  if(!host) return;
+  host.innerHTML = '';
+  const { genericUpi } = buildUpiLinks(app);
+  if(window.QRCode){
+    qrCodeInstance = new QRCode(host, {
+      text: genericUpi,
+      width: 220,
+      height: 220,
+      colorDark: '#0E3B2C',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } else {
+    // Extremely unlikely fallback if the CDN script failed to load —
+    // show the raw link instead of a fake/blank image.
+    host.innerHTML = '<div style="padding:20px; font-size:12px; word-break:break-all; color:var(--muted);">' + genericUpi + '</div>';
+  }
+}
+
+/* ---------- Backend order sync ---------- */
+function orderPayload(extra){
+  const s = state.settings;
+  const est = computeEstimate();
+  return Object.assign({
+    'Order ID': state.orderId,
+    'Customer Name': state.userName || '',
+    'Customer Email': state.userEmail || '',
+    'File Name': state.file ? state.file.name : '',
+    'Pages': est.pages,
+    'Paper Size': s.size,
+    'Colour Mode': s.color === 'bw' ? 'Black & White' : 'Full colour',
+    'Sides': s.sides === 'single' ? 'Single-sided' : 'Double-sided',
+    'Paper Type': PAPER_LABEL[s.paperType],
+    'Binding': BINDING_LABEL[s.binding],
+    'Copies': s.copies,
+    'Subtotal (Rs)': est.subtotal,
+    'GST (Rs)': est.gst,
+    'Total (Rs)': est.total
+  }, extra || {});
+}
+
+function callBackend(action, data){
+  if(!SITE_CONFIG.gasUrl) return; // no backend configured — skip silently
+  const url = SITE_CONFIG.gasUrl + '?action=' + action + '&data=' + encodeURIComponent(JSON.stringify(data));
+  fetch(url).catch(() => { /* best-effort; order flow continues regardless */ });
+}
+
+function saveOrderToBackend(app){
+  callBackend('addOrder', orderPayload({ 'Payment App': APP_NAMES[app] || app, 'Payment Status': 'Pending' }));
+}
+
+function updateOrderStatusBackend(status){
+  callBackend('updateStatus', {
+    'Order ID': state.orderId,
+    'Payment App': APP_NAMES[state.selectedApp] || state.selectedApp,
+    'Payment Status': status,
+    'Confirm ID': state.confirmId || ''
+  });
+}
+
+/* ---------- QR session (Step 4 select → QR → continue) ---------- */
+let qrTimerHandle = null;
+const QR_SESSION_MS = 120000;
+
+function newOrderId(){
+  return 'APC' + Date.now().toString(36).toUpperCase() + Math.floor(10 + Math.random()*90);
+}
+
+function selectPayApp(app){
+  cancelQrSession();          // drop any prior pending session for this order
+  state.selectedApp = app;
+  state.payPhase = 'qr';
+  state.qrExpired = false;
+  state.qrExpiresAt = null;   // FIX: force a fresh 2-minute window (Generate New QR)
+  state.orderId = newOrderId();
+  renderFlow();
+  saveOrderToBackend(app);    // record Pending the moment the QR is shown
+}
+
+function cancelQrSession(){
+  stopQrTimer();
+  if(state.orderId && state.payPhase === 'qr'){
+    updateOrderStatusBackend('Cancelled');
+  }
+}
+
+function startQrTimer(){
+  if(state.payPhase !== 'qr') return;
+  if(!state.qrExpiresAt) state.qrExpiresAt = Date.now() + QR_SESSION_MS;
+  updateQrTimerUI();
+  qrTimerHandle = setInterval(updateQrTimerUI, 1000);
+}
+
+function stopQrTimer(){
+  if(qrTimerHandle){ clearInterval(qrTimerHandle); qrTimerHandle = null; }
+}
+
+function updateQrTimerUI(){
+  if(!state.qrExpiresAt) return;
+  const remainMs = state.qrExpiresAt - Date.now();
+  const remain = Math.max(0, Math.ceil(remainMs / 1000));
+  const txt = document.getElementById('qr-timer-text');
+  const ring = document.getElementById('ring-fg');
+  if(txt) txt.textContent = String(Math.floor(remain/60)).padStart(2,'0') + ':' + String(remain%60).padStart(2,'0');
+  if(ring){
+    const circumference = 2 * Math.PI * 28;
+    ring.style.strokeDasharray = circumference;
+    ring.style.strokeDashoffset = circumference * (1 - remain / (QR_SESSION_MS/1000));
+  }
+  if(remain <= 0 && !state.qrExpired){
+    state.qrExpired = true;
+    stopQrTimer();
+    updateOrderStatusBackend('Expired');
+    const overlay = document.getElementById('qr-expired-overlay');
+    const img = document.getElementById('qr-photo-img');
+    const cont = document.getElementById('qr-continue');
+    const regen = document.getElementById('qr-regen');
+    if(overlay) overlay.style.display = 'flex';
+    if(img) img.style.filter = 'grayscale(1) brightness(.55)';
+    if(cont){ cont.disabled = true; cont.style.opacity = '.5'; cont.style.pointerEvents = 'none'; }
+    if(regen) regen.style.display = 'block';
+  }
+}
+
+function launchPaymentApp(app, isRetry){
+  state.selectedApp = app;
+  state.payPhase = 'confirm';
+  renderFlow();
+
+  if(!isRetry) saveOrderToBackend(app);
+
+  const { genericUpi } = buildUpiLinks(app);
+
+  // Single navigation to the standard "upi://pay" intent — this is the one
+  // scheme every UPI app (PhonePe, Google Pay, Paytm, BHIM, ...) registers a
+  // handler for on Android, so this reliably opens the user's chosen app
+  // (or the OS app-picker if several are installed) with the exact amount
+  // and order id pre-filled. We deliberately do NOT also try app-specific
+  // schemes like "phonepe://" or "tez://" first — those are undocumented,
+  // frequently blocked, and firing two navigations back-to-back was what
+  // produced the repeating "no app can handle this action" console errors.
+  try{
+    window.location.href = genericUpi;
+  }catch(err){
+    console.warn('Could not open UPI app automatically:', err);
+  }
+
+  // Desktop browsers and iOS have no UPI app to hand off to at all — the
+  // scheme simply does nothing there. Always show a manual link rather than
+  // silently failing or repeatedly retrying the broken redirect.
+  const msgBox = document.getElementById('app-redirect-msg');
+  if(msgBox){
+    msgBox.innerHTML = 'We opened <b>' + APP_NAMES[app] + '</b> with a request to pay <b>₹' + computeEstimate().total + '</b> to Amaravati Print Centre. ' +
+      'If nothing happened (common on desktop browsers or iOS), <a href="' + genericUpi + '" style="text-decoration:underline; font-weight:700;">tap here to open your UPI app directly</a>, or scan the QR code shown earlier from your phone.';
+  }
+}
+
+function confirmPayment(){
+  const btn = document.getElementById('confirm-paid');
+  if(btn){ btn.textContent = 'Confirming…'; btn.disabled = true; }
+  const now = new Date();
+  state.confirmId = 'APC' + now.getFullYear().toString().slice(2) +
+    String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') +
+    String(Math.floor(1000+Math.random()*9000));
+  if(!state.orderId) state.orderId = 'APC' + Math.random().toString(36).slice(2,10).toUpperCase();
+  updateOrderStatusBackend('Paid');
+  setTimeout(() => nav('success'), 500);
+}
+
+/* ---------- Success / receipt ---------- */
+function renderSuccess(){
+  const est = computeEstimate();
+  const body = document.getElementById('success-body');
+  body.innerHTML = `
+    <div class="confirm-bar"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Payment confirmed &middot; ${state.confirmId}</div>
+    <div class="print-status">
+      <div class="picn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 14H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg></div>
+      <h2>Printing your document&hellip;</h2>
+      <p>Please collect your prints from the tray.</p>
+      <div class="qr-wrap">${qrSvg(state.orderId, 190)}</div>
+    </div>
+  `;
+  // Simulate the tray finishing, then reveal the "All done" receipt.
+  setTimeout(() => renderReceipt(), 2200);
+}
+
+function renderReceipt(){
+  const est = computeEstimate();
+  const body = document.getElementById('success-body');
+  body.innerHTML = `
+    <div class="receipt-title page-fade">
+      <div class="qr-wrap">${qrSvg(state.orderId, 190)}</div>
+      <div class="qr-cap">Scan for receipt</div>
+      <h2>All done!</h2>
+      <p>Thanks for using Amaravati Print Centre.</p>
+    </div>
+    <div class="receipt-fields">
+      <div class="rf-row"><span class="rk">Order ID</span><span class="rv">${state.orderId}</span></div>
+      <div class="rf-row"><span class="rk">Files</span><span class="rv">1</span></div>
+      <div class="rf-row"><span class="rk">Total pages</span><span class="rv">${est.pages}</span></div>
+      <div class="rf-row"><span class="rk">Paper</span><span class="rv">${state.settings.size} &middot; ${state.settings.color==='bw'?'B&amp;W':'Colour'}</span></div>
+      <div class="rf-row"><span class="rk">Copies</span><span class="rv">×${est.copies}</span></div>
+      <div class="rf-row"><span class="rk">Amount paid</span><span class="rv">₹${est.total}</span></div>
+      <div class="rf-row"><span class="rk">Status</span><span class="status-pill"><span class="d"></span>Completed</span></div>
+    </div>
+    <div class="receipt-actions">
+      <a href="#" class="save-link" onclick="downloadReceipt(); return false;"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Save receipt</a><br>
+      <button class="btn btn-primary btn-block" onclick="resetOrder(); nav('print',1);">Print another
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <a href="#" class="home-link" onclick="resetOrder(); return nav('home');"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7"/><path d="M9 22V12h6v10"/></svg>Home</a>
+    </div>
+  `;
+}
+
+function resetOrder(){
+  stopQrTimer();
+  state.file = null;
+  state.settings = { size:'A4', color:'bw', sides:'single', paperType:'premium', binding:'none', copies:1 };
+  state.selectedApp = null;
+  state.payPhase = 'select';
+  state.qrExpiresAt = null;
+  state.qrExpired = false;
+  state.orderId = null;
+}
+
+function downloadReceipt(){
+  const est = computeEstimate();
+  const text = 'Amaravati Print Centre\\nOrder ID: ' + state.orderId + '\\nFiles: 1\\nTotal pages: ' + est.pages +
+    '\\nPaper: ' + state.settings.size + ' - ' + (state.settings.color==='bw'?'B&W':'Colour') +
+    '\\nCopies: x' + est.copies + '\\nAmount paid: Rs.' + est.total + '\\nStatus: Completed\\n';
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = state.orderId + '-receipt.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Lightweight decorative QR-style SVG (visual only) ---------- */
+function qrSvg(seed, size){
+  const n = 21; // module grid
+  let rnd = hashSeed(seed || 'amaravati');
+  const modules = [];
+  for(let r = 0; r < n; r++){
+    modules[r] = [];
+    for(let c = 0; c < n; c++){
+      const inFinder = (r < 7 && c < 7) || (r < 7 && c >= n-7) || (r >= n-7 && c < 7);
+      modules[r][c] = inFinder ? 0 : (rnd() > 0.55 ? 1 : 0);
+    }
+  }
+  function drawFinder(x, y){
+    return `<rect x="${x}" y="${y}" width="7" height="7" fill="#0E3B2C"/>
+            <rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/>
+            <rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#0E3B2C"/>`;
+  }
+  let cells = '';
+  for(let r = 0; r < n; r++){
+    for(let c = 0; c < n; c++){
+      if(modules[r][c]) cells += `<rect x="${c}" y="${r}" width="1" height="1" fill="#0E3B2C"/>`;
+    }
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${n} ${n}" style="background:#fff; border-radius:12px; padding:0;">
+    <rect x="0" y="0" width="${n}" height="${n}" fill="#fff"/>
+    ${cells}
+    ${drawFinder(0,0)}${drawFinder(n-7,0)}${drawFinder(0,n-7)}
+  </svg>`;
+}
+function hashSeed(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (Math.imul(31,h) + str.charCodeAt(i)) | 0; }
+  return function(){
+    h = (Math.imul(h, 1103515245) + 12345) | 0;
+    return ((h >>> 0) % 1000) / 1000;
+  };
+}
+
+/* ---------- Home stats (real, from Google Sheet) ---------- */
+function formatRelativeTime(sec){
+  sec = Math.max(0, Math.floor(sec));
+  if(sec < 60) return 'completed ' + sec + 's ago';
+  var m = Math.floor(sec/60);
+  if(m < 60) return 'completed ' + m + ' min ago';
+  var h = Math.floor(m/60);
+  if(h < 24) return 'completed ' + h + ' hr ago';
+  var d = Math.floor(h/24);
+  return 'completed ' + d + ' day' + (d>1?'s':'') + ' ago';
+}
+function fetchHomeStats(){
+  if(!SITE_CONFIG.gasUrl) return;
+  fetch(SITE_CONFIG.gasUrl + '?action=getStats')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d || d.status !== 'ok') return;
+      var prints = document.getElementById('stat-prints');
+      var users = document.getElementById('stat-users');
+      if(prints) prints.textContent = Number(d.totalPrints || 0).toLocaleString('en-IN');
+      if(users) users.textContent = Number(d.verifiedUsers || 0).toLocaleString('en-IN');
+      // Avg print time and Google rating have no real data source yet — leave as "—".
+      var row = document.getElementById('last-print-row');
+      var lbl = document.getElementById('last-print-label');
+      var val = document.getElementById('last-print-val');
+      if(d.lastPrint && row && lbl && val){
+        row.style.display = '';
+        lbl.textContent = 'Last print — ' + formatRelativeTime(d.lastPrint.secondsAgo);
+        val.textContent = '₹' + Number(d.lastPrint.total || 0);
+      }
+    })
+    .catch(function(){ /* leave placeholders as-is */ });
+}
+function registerUserBackend(method){
+  if(!SITE_CONFIG.gasUrl) return;
+  if(!state.userEmail) return;
+  var payload = { 'Full Name': state.userName || '', 'Email': state.userEmail, 'Auth Method': method || 'email' };
+  var url = SITE_CONFIG.gasUrl + '?action=addUser&data=' + encodeURIComponent(JSON.stringify(payload));
+  fetch(url).then(function(){ fetchHomeStats(); }).catch(function(){});
+}
+
+/* ---------- Init ---------- */
+renderFlow();
+fetchHomeStats();
+setInterval(fetchHomeStats, 60000); // refresh every minute
+
+/* ---------- Sign up validation ---------- */
+function validateSignUp(name, email, pass){
+  if(!name || name.trim().length < 2) return 'Please enter your full name.';
+  if(!/^[^\s@]+@gmail\.com$/i.test(email)) return 'Email must be a valid @gmail.com address.';
+  if(pass.length < 8) return 'Password must be at least 8 characters long.';
+  if(!/[A-Z]/.test(pass)) return 'Password must include at least 1 capital letter.';
+  var digits = (pass.match(/\d/g) || []).length;
+  if(digits < 2 || digits > 8) return 'Password must contain between 2 and 8 digits.';
+  if(!/[#&@!\u20B9?*]/.test(pass)) return 'Password must include 1 special character from # & @ ! \u20B9 ? *';
+  if(!/^[A-Za-z0-9#&@!\u20B9?*]+$/.test(pass)) return 'Password may only use letters, digits, and # & @ ! \u20B9 ? *';
+  return null;
+}
+function doSignUp(){
+  var name = document.getElementById('su-name').value.trim();
+  var email = document.getElementById('su-email').value.trim();
+  var pass = document.getElementById('su-pass').value;
+  var err = validateSignUp(name, email, pass);
+  var box = document.getElementById('su-error');
+  if(err){ box.textContent = err; box.style.display = 'block'; return; }
+  box.style.display = 'none';
+  state.userName = name;
+  state.userEmail = email;
+  registerUserBackend('email');
+  doSignIn();
+}
+
+/* ---------- Google Identity Services ---------- */
+var GOOGLE_CLIENT_ID = '86812839530-3f11ruihv79mus27smp4lco66dif0joc.apps.googleusercontent.com';
+function decodeJwt(t){ try { return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); } catch(e){ return {}; } }
+function handleGoogleCredential(resp){
+  var p = decodeJwt(resp.credential || '');
+  state.userName = p.name || '';
+  state.userEmail = p.email || '';
+  registerUserBackend('google');
+  doSignIn();
+}
+function initGoogle(){
+  if(!window.google || !google.accounts || !google.accounts.id) return false;
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential, ux_mode: 'popup', auto_select: false });
+  return true;
+}
+function googleAuth(){
+  var tries = 0;
+  (function attempt(){
+    if(initGoogle()){
+      google.accounts.id.prompt(function(notification){
+        if(notification && (notification.isNotDisplayed && notification.isNotDisplayed()) || (notification && notification.isSkippedMoment && notification.isSkippedMoment())){
+          // Fallback: render a hidden button and click it to force the popup
+          var host = document.getElementById('g-btn-host');
+          if(!host){ host = document.createElement('div'); host.id = 'g-btn-host'; host.style.position='fixed'; host.style.left='-9999px'; document.body.appendChild(host); }
+          host.innerHTML = '';
+          google.accounts.id.renderButton(host, { theme:'outline', size:'large' });
+          var btn = host.querySelector('div[role=button]');
+          if(btn) btn.click();
+        }
+      });
+    } else if(tries++ < 40){ setTimeout(attempt, 100); }
+    else { alert('Google Sign-In failed to load. Check your connection.'); }
+  })();
+}
+window.addEventListener('load', initGoogle);
+</script>
+</body>
+</html>
